@@ -1,0 +1,35 @@
+.login-wrapper{
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--darker-bg);
+    border-radius: 5px;
+    color: var(--font-color);
+}
+
+.button-sign-up:hover{
+    color: white;
+}
+
+form input{
+    border-radius: 2px;
+    border: none;
+}
+
+form label{
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+form label p{
+    margin-bottom: 5px;
+}
+
+.app-wrapper{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--main-bg-color);
+}

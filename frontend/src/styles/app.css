@@ -1,0 +1,169 @@
+.app{
+    display: grid;
+    grid-template-columns: 200px auto;
+    height: 100vh;
+    background-color: var(--main-bg-color);
+}
+
+.sidebar{
+    grid-column: 1;
+    background-color: var(--darker-bg);
+    color: rgb(218, 218, 218);
+    padding: 10px;
+}
+
+.sidebar .username{
+    font-weight: bold;
+    height: 40px;
+}
+
+.sidebar ul{
+    margin-top: 25px;
+    border-top: 1px solid rgb(218, 218, 218);
+    padding-top: 10px;
+    padding-left: 0px;
+    
+}
+
+.sidebar li{
+    list-style: none;
+    align-self: flex-start;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-radius: 2px;
+    padding-left: 5px;
+}
+
+.sidebar li::before{
+    content: '#';
+    margin-right: 5px ;
+}
+
+.sidebar li:hover{
+    background-color: var(--main-bg-color);
+}
+
+.main{
+    grid-column: 2;
+}
+
+.active{
+    background-color: var(--main-bg-color);
+}
+
+
+.channel-list ul{
+    margin-top: 25px;
+    border-top: 1px solid rgb(218, 218, 218);
+    padding-top: 10px;
+    padding-left: 0px;
+    
+}
+
+.channel-list li{
+    list-style: none;
+    align-self: flex-start;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-radius: 2px;
+    padding-left: 5px;
+}
+
+.channel-list li::before{
+    content: '⚫️';
+    margin-right: 5px ;
+}
+
+.channel-list li:hover{
+    background-color: var(--main-bg-color-2);
+}
+
+
+.server-view{
+    display: grid;
+    grid-template-columns: 200px auto 200px;
+    height: 100%;
+}
+
+.channel-list{
+    padding: 10px;
+    grid-column: 1;
+    background-color: var(--darker-bg-2);
+    color: rgb(218, 218, 218);
+}
+
+.channel-view{
+    grid-column: 2;
+}
+
+.member-list{
+    grid-column: 3;
+    padding: 10px;
+    background-color: var(--darker-bg-2);
+    color: rgb(218, 218, 218);
+}
+
+.member-list li{
+    list-style: none;
+    align-self: flex-start;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-radius: 2px;
+    padding-left: 5px;
+}
+
+.member-list ul{
+    margin-top: 25px;
+    border-top: 1px solid rgb(218, 218, 218);
+    padding-top: 10px;
+    padding-left: 0px;
+    
+}
+
+.member-list .admin{
+    font-weight: bold;
+}
+
+.member-list .connected{
+    color: green;
+}
+
+.channel-list .servername{
+    font-weight: bold;
+    height: 40px;
+}
+
+.active-channel{
+    background-color: var(--main-bg-color-2);
+}
+
+.channel-view{
+    height: 100%;
+    background-color: var(--main-bg-color);
+    display: grid;
+    grid-template-rows: auto fit-content;
+}
+
+.channel-view form{
+    grid-row: 2;
+}
+
+.message-list{
+    overflow-y: auto;
+}
+
+.channel-message{
+    color: rgb(219, 219, 219);
+    list-style: none;
+    padding-top: 5px;
+}
+
+.from{
+    font-weight: bold;
+}
+
+.date{
+    margin-left: 5px;
+    font-size: 0.8rem;
+    color: rgb(224, 224, 224);
+}
