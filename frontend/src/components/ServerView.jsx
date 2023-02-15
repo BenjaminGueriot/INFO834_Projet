@@ -12,6 +12,7 @@ function ServerView({activeServer, socket}){
     const [newChannel, setNewChannel] = useState()
     const [newMember, setNewMember] = useState()
     const [newMessage, setNewMessage] = useState()
+    const [connectedUsers, setConnectedUsers] = useState()
     
 
     // Fonction pour réucpérer les données du serveur cliqué
@@ -49,7 +50,8 @@ function ServerView({activeServer, socket}){
             if ( activeServer == data.server.name ){
 
                 setServer(data.server)
-
+                const connected = get_if_connect(data.server)
+                setConnectedUsers(connected)
             }
         })
 
@@ -60,9 +62,10 @@ function ServerView({activeServer, socket}){
             {
                 setServer(data.server)
                 setActiveChannel(activeChannel)
+                const connected = get_if_connect(data.server)
+                setConnectedUsers(connected)
             }
         })
-
 
     }, [activeServer])
 
@@ -76,9 +79,10 @@ function ServerView({activeServer, socket}){
 
             const updatedServer = JSON.parse(data.server)
             setServer(updatedServer)
+            const connected = get_if_connect(JSON.parse(updatedServer))
+            setConnectedUsers(connected)
             setActiveChannel(updatedServer.channels.find(channel => channel.name == data.channel))
         })
-    
 
         return () => {
             socket.off('user_joined_server')
@@ -108,6 +112,8 @@ function ServerView({activeServer, socket}){
         })
 
       const res = await responseServerData.json();
+      const connected = await get_if_connect(JSON.parse(res.body))
+      await setConnectedUsers(connected)
 
       if (responseServerData.ok){
         return JSON.parse(res.body)
@@ -130,44 +136,39 @@ function ServerView({activeServer, socket}){
     }
 
     const renderMemberItems = () => {
-        console.log(server.members)
+        let count = 0 ;
+        
 
         return server.members.map( (member) => {
             if(member.role === "admin"){
                 return <li className='member-list admin' >{member.user.login}</li>
             }
-            
-            let connected = get_if_connect(member.user.login).then(res => {
-                if (res == 1){
-                   return 1
-                }
-                else{
-                    return 0
-                }
-            });
-
-            console.log(connected)
-            if(connected == 1){
-                return <li className='member-list connected'>{member.user.login}</li>
+            console.log(connectedUsers[count])
+            if(connectedUsers[count] == 1){
+                return <li className='member-list connected'><span>{member.user.login}</span></li>
             }
             else{
-                return <li className='member-list'>{member.user.login}</li>
+                return <li className='member-list'> {member.user.login}</li>
             }
         })
     }
 
-    const get_if_connect = async (login) => {
+    const get_if_connect = async (serverData) => {
+        
+        let res = [];
+        serverData.members.map( async (member) => {
 
-        const responseUserData = await fetch('/api/get_user_redis?login=' + login, {
-            method: 'GET',
-            headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-            },
-        })
-
-        const res = await responseUserData.json();
-        return(res.body[0])
+            let responseUserData = await fetch('/api/get_user_redis?login=' + member.user.login, {
+                method: 'GET',
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+            })
+            let r = await responseUserData.json()
+            res.push(r.body);
+        });
+            return(res)
     }
 
     const handleAddChannel = async (e) => {
@@ -185,7 +186,6 @@ function ServerView({activeServer, socket}){
         })
 
       const res = await responseServerData.json();
-
 
       if (responseServerData.ok){
         socket.emit("channel_added", activeServer)
@@ -242,10 +242,11 @@ function ServerView({activeServer, socket}){
         })
 
       const res = await responseServerData.json();
+      
 
       if (responseServerData.ok){
-        // setServer(res)
-        // setActiveChannel(res.channels.find(channel => channel.name == activeChannel.name))
+        setServer(res)
+        setActiveChannel(res.channels.find(channel => channel.name == activeChannel.name))
         socket.emit("message_sent",  activeServer, activeChannel.name)
         return
       }

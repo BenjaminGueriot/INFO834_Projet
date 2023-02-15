@@ -302,10 +302,9 @@ def crud_server():
 def get_user():
     if request.method == "GET" :
         user = request.args.get('login')
-        print(user)
         if user:
             res = r.get(user)
-            if res :
+            if res != None:
                 response = app.response_class(
                                 response=json.dumps({'body' : '1'}),
                                 status=200,
