@@ -109,6 +109,7 @@ def create_server(mongo, server_name, admin):
         })
 
     server = Server(**{
+        'type' : True,
         'name' : server_name,
         'members' : [member],
         'channels' : [channel]
