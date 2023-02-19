@@ -129,6 +129,8 @@ def add_member(member, server):
     else:
         socketio.emit("user_joined_server", {"server" : server_to_json(db.get_server(mongo, server)), "username" : member}, to = server)
 
+
+
 # Notifier les membres d'un serveur d'un nouveau message 
 @socketio.on('message_sent')
 def handle_message_sent(server, channel):
@@ -202,6 +204,34 @@ def api_user_login():
             mimetype='application/json'
         )
         return response
+
+
+@app.route("/api/friend", methods = ["POST"])
+def crud_friend():
+
+    # Ajouter un serveur pour un chat privé
+    if request.method == "POST" :
+        data = request.get_json()
+
+        chat = db.create_chat(mongo, data["user"] + "_" + data["friend"], data["user"], data["friend"])
+
+        if chat:
+            response = app.response_class(
+                    response=json.dumps({'body' : chat.name}),
+                    status=200,
+                    mimetype='application/json'
+                )
+            return response
+
+        else:
+            error = {'body' : 'Friend already exists'}
+            response = app.response_class(
+                response=json.dumps(error),
+                status=400,
+                mimetype='application/json'
+            )
+            return response
+
 
 # API Server
 @app.route("/api/server", methods = ["POST", "GET", "PUT"])
