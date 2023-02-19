@@ -11,7 +11,8 @@ def create_user(mongo, username, password):
     user = User(**{
         'login' : username,
         'password' : password,
-        'nickname' : username
+        'nickname' : username,
+        'friends' : []
     })
 
     userRepository = UserRepository(mongo.db)
@@ -32,6 +33,51 @@ def find_user(mongo, username, password):
         return False
     else: 
         return user
+
+def create_chat(mongo, chat_name, member1, member2):
+
+    serverRepository = ServerRepository(mongo.db)
+    userRepository = UserRepository(mongo.db)
+
+    user1 = userRepository.find_one_by({'login' : member1})
+    user2 = userRepository.find_one_by({'login' : member2})
+
+    if (not user1) or (not user2) :
+        return False
+    
+    user1.friends.append(member2)
+    user2.friends.append(member1)
+
+    member = Member(**{
+            'user' : user1, 
+            'role' : "user"
+        }, 
+        {
+            'user' : user2,
+            'role' : "user"
+        })
+
+    channel = Channel(**{
+            'name' : "Messages",
+            "messages" : []
+        })
+
+    servers = serverRepository.find_all()
+
+    for server in servers:
+        if server.name == chat_name:
+            return False
+
+    server = Server(**{
+        'name' : chat_name,
+        'members' : [member],
+        'channels' : [channel]
+    })
+
+    serverRepository.save(server)
+
+    return server
+     
 
 def create_server(mongo, server_name, admin):
 
