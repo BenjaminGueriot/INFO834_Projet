@@ -90,13 +90,15 @@ def disconnect(sid):
 def register_user(sid, username):
     print("REGISTERING " + username)
     socketio.server.save_session(sid, {'username' : username})
+    r.set(username, 1)
     servers = db.get_servers_of_user(mongo, username)
     for server in servers:
         print(username + " se connecte a " + server.name)
         socketio.server.enter_room(sid, server.name)
-    print(f"{sid} {socketio.server.get_session(sid)}")
-    print("TOUTES LES ROOMS")
-    print(socketio.server.manager.rooms)
+    
+    # print(f"{sid} {socketio.server.get_session(sid)}")
+    # print("TOUTES LES ROOMS")
+    # print(socketio.server.manager.rooms)
     
 # Ajouter le nouveau membre à la room correspondant au serveur
 @socketio.on('add_member')
@@ -183,7 +185,7 @@ def api_user_login():
     user = db.find_user(mongo, data['username'], data['password'])
     
     if user:
-        r.set(user.login, 1)
+        # r.set(user.login, 1)
         response = app.response_class(
                 response=json.dumps({'body' : user.login}),
                 status=200,

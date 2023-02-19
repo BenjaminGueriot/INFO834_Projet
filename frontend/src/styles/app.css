@@ -70,7 +70,7 @@
 }
 
 .channel-list li::before{
-    content: '⚫️';
+    content: '📜';
     margin-right: 5px ;
 }
 
@@ -124,8 +124,14 @@
     font-weight: bold;
 }
 
-.member-list .connected{
-    color: green;
+.member::before{
+    content: '⚫️';
+    margin-right: 5px ;
+}
+
+.member-list .connected::before{
+    content : '🔵';
+    margin-right: 5px;
 }
 
 .channel-list .servername{

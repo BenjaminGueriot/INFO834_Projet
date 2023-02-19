@@ -19,8 +19,11 @@ function ServerView({activeServer, socket}){
     const fetchServerData = async () => {
         if (activeServer === null ) return
         const serverData = await getServerData()
+        const connected = await get_if_connect(serverData)
+        setConnectedUsers(connected)
         setServer(serverData)
         setNewChannel("")
+        
     }
 
     // Setup le listener pour un nouveau message (J'ai galéré car j'utilise le state activeChannel dedans
@@ -50,8 +53,7 @@ function ServerView({activeServer, socket}){
             if ( activeServer == data.server.name ){
 
                 setServer(data.server)
-                const connected = get_if_connect(data.server)
-                setConnectedUsers(connected)
+                
             }
         })
 
@@ -62,10 +64,10 @@ function ServerView({activeServer, socket}){
             {
                 setServer(data.server)
                 setActiveChannel(activeChannel)
-                const connected = get_if_connect(data.server)
-                setConnectedUsers(connected)
+
             }
         })
+
 
     }, [activeServer])
 
@@ -74,13 +76,16 @@ function ServerView({activeServer, socket}){
     useEffect( () => {
         // Pour refresh la view quand on user est ajouté à mon server ouvert
 
+
+        // const connected = await get_if_connect(serverData)
+
         // Pour refresh le chat
         socket.on('update_chat', (data) =>{
 
             const updatedServer = JSON.parse(data.server)
             setServer(updatedServer)
-            const connected = get_if_connect(JSON.parse(updatedServer))
-            setConnectedUsers(connected)
+            // const connected = get_if_connect(JSON.parse(updatedServer))
+            // setConnectedUsers(connected)
             setActiveChannel(updatedServer.channels.find(channel => channel.name == data.channel))
         })
 
@@ -100,6 +105,40 @@ function ServerView({activeServer, socket}){
 
     }, [activeServer])
 
+    // useEffect( () => {
+
+    //    const getConnected = async () => {
+    //     if(server){
+    //         const connected = await get_if_connect(server)
+    //         await setConnectedUsers(connected)
+    //     }
+    //    }
+
+    //    getConnected()
+        
+    // }, [server])
+
+    useEffect( () => {
+        
+        console.log("aled")
+        console.log(connectedUsers)
+
+        // Ca marche grace  à ça
+
+        const refresh = async () => {
+            const serverData = await getServerData()
+            console.log(serverData)
+            setServer(serverData)
+        }
+
+        if(connectedUsers != undefined){
+            console.log("oui")
+            refresh()
+            
+        }
+        
+    }, [connectedUsers])
+
     // Appel api pour les données
     const getServerData = async () => {
 
@@ -112,8 +151,7 @@ function ServerView({activeServer, socket}){
         })
 
       const res = await responseServerData.json();
-      const connected = await get_if_connect(JSON.parse(res.body))
-      await setConnectedUsers(connected)
+      
 
       if (responseServerData.ok){
         return JSON.parse(res.body)
@@ -135,27 +173,14 @@ function ServerView({activeServer, socket}){
         })
     }
 
-    const renderMemberItems = () => {
-        let count = 0 ;
-        
-
-        return server.members.map( (member) => {
-            if(member.role === "admin"){
-                return <li className='member-list admin' >{member.user.login}</li>
-            }
-            console.log(connectedUsers[count])
-            if(connectedUsers[count] == 1){
-                return <li className='member-list connected'><span>{member.user.login}</span></li>
-            }
-            else{
-                return <li className='member-list'> {member.user.login}</li>
-            }
-        })
-    }
-
     const get_if_connect = async (serverData) => {
         
-        let res = [];
+        let res = {};
+
+        console.log("DANS IF CONNECT")
+        console.log(serverData.name)
+        console.log(serverData.members)
+
         serverData.members.map( async (member) => {
 
             let responseUserData = await fetch('/api/get_user_redis?login=' + member.user.login, {
@@ -166,10 +191,36 @@ function ServerView({activeServer, socket}){
                 },
             })
             let r = await responseUserData.json()
-            res.push(r.body);
+            res[member.user.login] = r.body;
         });
-            return(res)
+        
+        console.log(res)
+        return(res)
     }
+
+    const renderMemberItems = () => {
+  
+
+        return server.members.map( (member) => {
+
+            //console.log(member.user.login + " : " + connectedUsers[member.user.login] )
+
+            if(connectedUsers[member.user.login] == 1 && member.role === "admin"){
+                return <li className='member admin connected' >{member.user.login}</li>
+            }
+            else if(member.role === "admin"){
+                return <li className='member admin' >{member.user.login}</li>
+            }
+            else if(connectedUsers[member.user.login] == 1){
+                return <li className='member connected'><span>{member.user.login}</span></li>
+            }
+            else{
+                return <li className='member'> {member.user.login}</li>
+            }
+        })
+    }
+
+
 
     const handleAddChannel = async (e) => {
         e.preventDefault()
