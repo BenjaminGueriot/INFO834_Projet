@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
+import  { useNavigate } from 'react-router-dom'
 
 function ServerView({activeServer, socket}){
 
