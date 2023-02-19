@@ -91,6 +91,7 @@ def register_user(sid, username):
     print("REGISTERING " + username)
     socketio.server.save_session(sid, {'username' : username})
     r.set(username, 1)
+    r.xadd("connections", {'username' : username})
     servers = db.get_servers_of_user(mongo, username)
     for server in servers:
         print(username + " se connecte a " + server.name)
