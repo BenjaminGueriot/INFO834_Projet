@@ -90,6 +90,26 @@ def create_chat(mongo, chat_name, name1, name2):
 
     return server
 
+
+def find_chat(mongo, name1, name2):
+    
+    serverRepository = ServerRepository(mongo.db)
+    chat_name = f"{name1}_{name2}"
+    reversed_chat_name = f"{name2}_{name1}"
+
+    server = serverRepository.find_one_by({'name': chat_name})
+
+    if server:
+        return server
+
+    server = serverRepository.find_one_by({'name': reversed_chat_name})
+
+    if server:
+        return server
+
+    return False
+    
+
 def create_server(mongo, server_name, admin):
 
     serverRepository = ServerRepository(mongo.db)
