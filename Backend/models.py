@@ -9,6 +9,7 @@ class User(BaseModel):
     login: str
     password: str
     nickname: str
+    friends : list[login]
 
     class Config:
         # The ObjectIdField creates an bson ObjectId value, so its necessary to setup the json encoding
@@ -43,6 +44,7 @@ class Channel(BaseModel):
 
 class Server(BaseModel):
     id: ObjectIdField = None
+    type : bool
     name : str
     members : list[Member]
     channels : list[Channel] 
@@ -54,5 +56,4 @@ class Server(BaseModel):
 class ServerRepository(AbstractRepository[Server]):
     class Meta:
         collection_name = 'servers'
-
 
