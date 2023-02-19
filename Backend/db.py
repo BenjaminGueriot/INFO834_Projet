@@ -34,28 +34,40 @@ def find_user(mongo, username, password):
     else: 
         return user
 
-def create_chat(mongo, chat_name, member1, member2):
+def create_chat(mongo, chat_name, name1, name2):
 
     serverRepository = ServerRepository(mongo.db)
     userRepository = UserRepository(mongo.db)
 
-    user1 = userRepository.find_one_by({'login' : member1})
-    user2 = userRepository.find_one_by({'login' : member2})
+    user1 = userRepository.find_one_by({'login' : name1})
+    user2 = userRepository.find_one_by({'login' : name2})
+
+
 
     if (not user1) or (not user2) :
         return False
     
-    user1.friends.append(member2)
-    user2.friends.append(member1)
+    print(name1)
 
-    member = Member(**{
+    user1.friends.append(name2)
+    user2.friends.append(name1)
+
+    userRepository.save(user1)
+    userRepository.save(user2)
+
+
+    print(user1.friends)
+    print(user2.friends)
+
+    member1 = Member(**{
             'user' : user1, 
             'role' : "user"
-        }, 
-        {
-            'user' : user2,
-            'role' : "user"
-        })
+        }, )
+    
+    member2 = Member(**{        
+        'user' : user2,
+        'role' : "user"
+    })
 
     channel = Channel(**{
             'name' : "Messages",
@@ -63,10 +75,12 @@ def create_chat(mongo, chat_name, member1, member2):
         })
 
     server = Server(**{
+        'type' : False,
         'name' : chat_name,
-        'members' : [member],
+        'members' : [member1, member2],
         'channels' : [channel]
     })
+
 
     if not serverRepository.find_one_by({'name' : chat_name}):
         serverRepository.save(server)
