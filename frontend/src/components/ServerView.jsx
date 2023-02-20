@@ -120,9 +120,6 @@ function ServerView({activeServer, socket}){
     // }, [server])
 
     useEffect( () => {
-        
-        console.log("aled")
-        console.log(connectedUsers)
 
         // Ca marche grace  à ça
 
@@ -133,7 +130,6 @@ function ServerView({activeServer, socket}){
         }
 
         if(connectedUsers != undefined){
-            console.log("oui")
             refresh()
             
         }
@@ -199,24 +195,30 @@ function ServerView({activeServer, socket}){
         return(res)
     }
 
+    const test = () => {
+
+        return console.log("fsdfsdfsd")
+
+    }
+
     const renderMemberItems = () => {
   
 
         return server.members.map( (member) => {
-
+            
             //console.log(member.user.login + " : " + connectedUsers[member.user.login] )
 
             if(connectedUsers[member.user.login] == 1 && member.role === "admin"){
-                return <li className='member admin connected' >{member.user.login}</li>
+                return <li className='member admin connected' onClick={test}>{member.user.login}</li>
             }
             else if(member.role === "admin"){
-                return <li className='member admin' >{member.user.login}</li>
+                return <li className='member admin' onClick={test}>{member.user.login}</li>
             }
             else if(connectedUsers[member.user.login] == 1){
-                return <li className='member connected'><span>{member.user.login}</span></li>
+                return <li className='member connected' onClick={test}><span>{member.user.login}</span></li>
             }
             else{
-                return <li className='member'> {member.user.login}</li>
+                return <li className='member' onClick={test}> {member.user.login} </li>
             }
         })
     }
@@ -356,7 +358,7 @@ function ServerView({activeServer, socket}){
             <div className='member-list'>
             <form className='d-flex flex-column align-items-center '>
                 <label>
-                    <p>User name</p>
+                    <p>Username</p>
                     <input className='w-100' type="text" value={newMember} onChange={(e) => setNewMember(e.target.value)}/>
                 </label>
                 <button type="submit" className='btn btn-primary w-100' onClick={handleAddMember}>+ Add Member</button>

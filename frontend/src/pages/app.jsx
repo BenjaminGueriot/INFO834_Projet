@@ -5,6 +5,7 @@ import  { Navigate, useNavigate } from 'react-router-dom'
 import '../styles/app.css'
 import ServerList from '../components/ServerList';
 import ServerView from '../components/ServerView';
+import FriendView from '../components/FriendView';
 import io from 'socket.io-client';
 // import { SocketContext, socket } from '../context/socket';
 const { createProxyMiddleware } = require('http-proxy-middleware');
@@ -30,7 +31,10 @@ function App() {
     const [activeServer, setActiveServer] = useState(null)
 
 
+    const [serverCondition, setServerCondition] = useState()
+
     const handleServerClick = (server) => {
+      setServerCondition(1)
       setActiveServer(server)
     }
 
@@ -55,7 +59,7 @@ function App() {
 
 
     
-    const handleDisconnect = (e) => {
+  const handleDisconnect = (e) => {
         
       e.preventDefault()
       
@@ -63,6 +67,12 @@ function App() {
       socket.disconnect()
       navigate("/")
       socket.connect()
+  }
+
+  const showFriend = (e) => {
+      setServerCondition(0)
+        //return <FriendView activeServer = {activeServer} socket = {socket}/>
+   
   }
 
 
@@ -75,14 +85,19 @@ function App() {
             <div className='sidebar'>
               <div>
                 <div className='username'>{sessionStorage.getItem("user")}</div>
-                  
+                <div id='btn-friends-top'>{"       "}</div>
+                <div className='btn btn-primary w-100' onClick={showFriend}>Friends</div>
+                <div id='btn-friends-bottom'>{"       "}</div>
                 <ServerList activeServer = {activeServer} handleServerClick={handleServerClick} socket={socket}/>
               </div>
 
               <div className='btn btn-danger' onClick={handleDisconnect}>Disconnect</div>
             </div>
             <div className='main'>
-              <ServerView activeServer = {activeServer} socket = {socket}/>
+
+               { serverCondition == 1 && ( <ServerView activeServer = {activeServer} socket = {socket}/>)}
+               { serverCondition == 0 && ( <FriendView activeServer = {activeServer} socket = {socket}/>)}
+              
             </div>
           </div>
         </div>

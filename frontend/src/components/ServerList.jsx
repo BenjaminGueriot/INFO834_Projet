@@ -96,12 +96,15 @@ function ServerList(props){
     // Afficher les serveurs
     const renderServerItems = () => {
       return servers.map( (server) => {
-        if(server == props.activeServer){
-          return <li className='active' onClick={() => props.handleServerClick(server)}>{server}</li>
-        }
-        else{
-          return <li onClick={() => props.handleServerClick(server)}>{server}</li>
-        }
+
+          if(server == props.activeServer){
+            return <li className='active' onClick={() => props.handleServerClick(server)}>{server}</li>
+          }
+          else{
+            return <li onClick={() => props.handleServerClick(server)}>{server}</li>
+          }
+
+       
       })
     }
 
