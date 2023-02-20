@@ -96,7 +96,7 @@ function App() {
             <div className='main'>
 
                { serverCondition == 1 && ( <ServerView activeServer = {activeServer} socket = {socket}/>)}
-               { serverCondition == 0 && ( <FriendView activeServer = {activeServer} socket = {socket}/>)}
+               { serverCondition == 0 && ( <FriendView socket = {socket}/>)}
               
             </div>
           </div>

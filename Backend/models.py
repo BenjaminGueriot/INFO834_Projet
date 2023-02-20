@@ -9,7 +9,7 @@ class User(BaseModel):
     login: str
     password: str
     nickname: str
-    friends : list[str]
+    friends : list[str] = []
 
     class Config:
         # The ObjectIdField creates an bson ObjectId value, so its necessary to setup the json encoding

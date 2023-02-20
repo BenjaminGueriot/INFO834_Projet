@@ -92,7 +92,7 @@ def register_user(sid, username):
     socketio.server.save_session(sid, {'username' : username})
     r.set(username, 1)
     r.xadd("connections", {'username' : username})
-    servers = db.get_servers_of_user(mongo, username)
+    servers = db.get_all_servers_of_user(mongo, username)
     for server in servers:
         print(username + " se connecte a " + server.name)
         socketio.server.enter_room(sid, server.name)
@@ -132,6 +132,8 @@ def add_member(member, server):
 # Notifier les membres d'un serveur d'un nouveau message 
 @socketio.on('message_sent')
 def handle_message_sent(server, channel):
+    print(server)
+    print(channel)
     socketio.emit("new_message", {"server" : server, "channel" : channel}, to = server)
 
 # Envoyer aux membres le serveur mis a jour après un nouveau message
@@ -227,6 +229,29 @@ def api_user_login():
             mimetype='application/json'
         )
         return response
+
+@app.route("/api/chat", methods = ["GET"])
+def get_chat():
+    user1 = request.args.get('user1')
+    user2 = request.args.get('user2')
+    chat = db.find_chat(mongo, user1, user2)    
+
+    if chat:
+        response = app.response_class(
+                response=json.dumps({'body' : server_to_json(chat)}),
+                status=200,
+                mimetype='application/json'
+            )
+        return response
+    else:
+        error = {'body' : 'Erreur chat'}
+        response = app.response_class(
+            response=json.dumps(error),
+            status=400,
+            mimetype='application/json'
+        )
+        return response
+
 
 #ajouter des amis
 @app.route("/api/friend", methods = ["POST"])

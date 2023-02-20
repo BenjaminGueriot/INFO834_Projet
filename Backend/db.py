@@ -12,7 +12,6 @@ def create_user(mongo, username, password):
         'login' : username,
         'password' : password,
         'nickname' : username,
-        'friends' : []
     })
 
     userRepository = UserRepository(mongo.db)
@@ -43,11 +42,28 @@ def find_user_by_login(mongo, username):
         return False
     else: 
         return user
+    
+def find_chat(mongo, name1, name2):
+    serverRepository = ServerRepository(mongo.db)
+
+    chat = serverRepository.find_one_by({"$or" : [ {'name' : f"{name1}_{name2}"}, {'name' : f"{name2}_{name1}"}]})
+
+    if chat :
+        return chat
+    else :
+        return False
 
 def create_chat(mongo, chat_name, name1, name2):
 
     serverRepository = ServerRepository(mongo.db)
     userRepository = UserRepository(mongo.db)
+
+
+    chat_exists = serverRepository.find_one_by({"$or" : [ {'name' : f"{name1}_{name2}"}, {'name' : f"{name2}_{name1}"}]})
+
+    if chat_exists:
+        print("AAAAAAAAAAAAAA")
+        return False
 
     user1 = userRepository.find_one_by({'login' : name1})
     user2 = userRepository.find_one_by({'login' : name2})
@@ -126,6 +142,12 @@ def get_servers_of_user(mongo, user_login):
     userRepository = UserRepository(mongo.db)
     user = userRepository.find_one_by({'login' : user_login})
     return serverRepository.find_by({ 'members.user.id' : {'$eq' : user.id} , 'type' : True})
+
+def get_all_servers_of_user(mongo, user_login):
+    serverRepository = ServerRepository(mongo.db)
+    userRepository = UserRepository(mongo.db)
+    user = userRepository.find_one_by({'login' : user_login})
+    return serverRepository.find_by({ 'members.user.id' : {'$eq' : user.id}})
 
 def get_server(mongo, server_name):
     serverRepository = ServerRepository(mongo.db)

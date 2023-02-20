@@ -2,23 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import  { useNavigate } from 'react-router-dom'
 
-function FriendView({activeServer, socket}){
+function FriendView({socket}){
 
-    const [server, setServer] = useState()
-
-    // Channel cliqué
-    const [activeChannel, setActiveChannel] = useState(null)
-
-    // Variables pour les forms
-    const [newChannel, setNewChannel] = useState()
-    const [newFriend, setNewFriend] = useState()
     const [newMessage, setNewMessage] = useState()
+    const [chat, setChat] = useState()
+    // Variables pour les forms
+    const [newFriend, setNewFriend] = useState()
     const [connectedUsers, setConnectedUsers] = useState()
     const [currentUser,setCurrentUser] = useState()
-
     const [loaded, setLoaded] = useState(false)
-    const [loaded2, setLoaded2] = useState(false)
-    const [loaded3, setLoaded3] = useState(false)
+    const [activeFriend, setActiveFriend] = useState()
+
     
     const currentlogin = sessionStorage.getItem("user")
     
@@ -30,6 +24,16 @@ function FriendView({activeServer, socket}){
             return current
         }
     }
+
+    
+
+    useEffect( () => {
+
+        if(connectedUsers != undefined){
+            fetchUserData()  
+        }
+        
+    }, [connectedUsers])
 
     useEffect(() => {
 
@@ -48,86 +52,42 @@ function FriendView({activeServer, socket}){
         })()
     }, [loaded])
 
-    // Setup le listener pour un nouveau message (J'ai galéré car j'utilise le state activeChannel dedans
-    // donc obligé de le re-register le listener a chaque changement)
     useEffect( () => {
-        
-        socket.off('new_message')
+        (async () => {
+                const c = await fetchUserData()
+                const connect = await get_if_connect(c)
+                //console.log(connect)
+                setConnectedUsers(connect)
+        })()
 
-        socket.on('new_message', (data) => {
-           
-            // if ( activeChannel && activeServer == data.server && activeChannel.name == data.channel ){
-
-                // Notifier le server qu'un nouveau message a été reçu. 
-                socket.emit("new_message_received", sessionStorage.getItem("user"), activeChannel.name, server.name)
-            // }
-        })
-
-    }, [activeChannel])
-
-    // Setup les autres listeners de la socket
-    useEffect( () => {
-        // Pour refresh la view quand on user est ajouté à mon server ouvert
-
-
-        // const connected = await get_if_connect(serverData)
-
-        // Pour refresh le chat
         socket.on('update_chat', (data) =>{
 
+            
             const updatedServer = JSON.parse(data.server)
-            setServer(updatedServer)
-            // const connected = get_if_connect(JSON.parse(updatedServer))
-            // setConnectedUsers(connected)
-            setActiveChannel(updatedServer.channels.find(channel => channel.name == data.channel))
+            setChat(updatedServer)
+
         })
 
         return () => {
-            socket.off('new_message')
-            socket.off('update_chat')
+            socket.off("update_chat")
+            socket.off("new_message")
         }
-
     }, [])
 
-    /*useEffect( () => {
-        (async () => {
-            if (!loaded2) {
-
-                const refresh = async () => {
-                    const current = await getCurrent()
-                    console.log(current)
-                    setCurrentUser(current)
-                }
-
-                if(currentUser != undefined){
-                    refresh()
-                }
-                setLoaded2(true);
-            }
-        })()
-    }, [loaded2])
-
     useEffect( () => {
-        (async () => {
-            if (!loaded3) {
+        socket.off('new_message')
 
-                // Ca marche grace  à ça
+        socket.on('new_message', (data) => {
+            alert("yahahaha")
+            // if ( activeChannel && activeServer == data.server && activeChannel.name == data.channel ){
 
-                const refresh = async () => {
-                    const connect = await get_if_connect()
-                    console.log(connect)
-                    setConnectedUsers(connect)
-                }
+                // Notifier le server qu'un nouveau message a été reçu. 
+                socket.emit("new_message_received", sessionStorage.getItem("user"), "Messages", chat.name)
+            // }
+        })
 
-                if(connectedUsers != undefined){
-                    console.log("oui")
-                    setLoaded3(true);
-                    refresh()
-                }
-               
-            }
-        })()
-    }, [loaded3])*/
+    }, [chat])
+
 
 
     const getCurrent = async () => {
@@ -150,28 +110,6 @@ function FriendView({activeServer, socket}){
       }
     }
 
-    // Appel api pour les données
-    const getServerData = async () => {
-
-        const responseServerData = await fetch('/api/server?server_name=' + activeServer, {
-            method: 'GET',
-            headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-            },
-        })
-
-      const res = await responseServerData.json();
-      
-
-      if (responseServerData.ok){
-        return JSON.parse(res.body)
-      }
-      else{
-        alert("Error fetching server data")
-        return
-      }
-    }
 
     const get_if_connect = async (userC) => {
         let res = {};
@@ -194,41 +132,61 @@ function FriendView({activeServer, socket}){
         }
     }
 
-    const test = () => {
-
-        return console.log("fsdfsdfsd")
-
-    }
 
     const renderFriendItems = () => {
-
-        //console.log(connectedUsers)
 
         if(currentUser){
            
                 return currentUser.map( (friend) => {
-                    //console.log(friend)
 
-                   
-
-                    //console.log(Object.keys(connectedUsers))
-                    //console.log(connectedUsers[connectedUsers])
-                    //console.log(member.user.login + " : " + connectedUsers[member.user.login] )
-
-                    if(connectedUsers[friend] == 1){
-                        return <li className='member connected' onClick={test}><span>{friend}</span></li>
+                    if(connectedUsers[friend] == 1 && friend == activeFriend){
+                        return <li className='member connected active' onClick={handleChatClick}>{friend}</li>
+                    }
+                    else if (connectedUsers[friend] == 1 ){
+                        return <li className='member connected' onClick={handleChatClick}>{friend}</li>
+                    }
+                    else if(friend == activeFriend){
+                        return <li className='member active' onClick={handleChatClick}>{friend}</li>
                     }
                     else{
-                        return <li className='member' onClick={test}> {friend} </li>
+                        return <li className='member' onClick={handleChatClick}>{friend}</li>
                     }
                 })
         }
+    }
+
+    const handleChatClick = async (e) => {
+        e.preventDefault()
+
+        const friendName = e.target.innerHTML
+
+        const responseServerData = await fetch('/api/chat?user1=' + currentlogin + "&user2=" + friendName, {
+            method: 'GET',
+            headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+            },
+        })
+
+        const res = await responseServerData.json();
+
+        if (responseServerData.ok){
+            console.log(res.body)
+            setChat(res.body)
+            setActiveFriend(friendName)
+        }
+        else{
+            alert("Error fetching server data")
+            return
+        }
+
     }
 
     const handleAddFriend = async (e) => {
         e.preventDefault()
 
         console.log(newFriend)
+        console.log(currentlogin)
 
         if(newFriend === "" || newFriend === null || newFriend === undefined) return
 
@@ -245,8 +203,8 @@ function FriendView({activeServer, socket}){
 
 
         if (responseServerData.ok){
-            socket.emit("add_friend", newFriend)
-            setServer(res)
+            //socket.emit("add_friend", newFriend)
+            fetchUserData()
             return
         }
         else{
@@ -258,18 +216,80 @@ function FriendView({activeServer, socket}){
 
     }
 
+
+    const renderMessageItems = () => {
+        return chat && chat.channels[0].messages.map( (message) => {
+            return (<li className='channel-message'>
+                <div>
+                    <span className='from'>{message.from_user.login}</span>
+                    <span className='date'>{message.sent_at}</span>
+                </div>
+                <p>{message.content}</p>
+            </li>)
+        })
+    }
+
+    const handleSendNewMessage = async (e) => {
+        e.preventDefault()
+
+        if(newMessage === "" ||newMessage === null || newMessage === undefined) return
+
+        const responseServerData = await fetch('/api/server', {
+            method: 'PUT',
+            headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            },
+            body : JSON.stringify({"new_channel" : "", "server_name" : chat.name, "new_member" : "", "channel_to_update" : "Messages", "new_message" : newMessage, "from" : sessionStorage.getItem("user")})
+        })
+
+        const res = await responseServerData.json();
+      
+
+        if (responseServerData.ok){
+            setChat(res)
+            socket.emit("message_sent",  chat.name, "Messages")
+            return
+        }
+        else{
+            alert("Error fetching server data")
+            return
+        }
+    }
+
+    const renderChannelView = () => {
+
+        return (
+            chat &&
+        <form className='d-flex flex-column align-items-center p-3 justify-content-end'>
+                    <label className='w-100'>
+                        <input className='w-100' type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
+                    </label>
+                    <button type="submit" className='btn btn-primary w-100' onClick={handleSendNewMessage}>Send Message</button>
+        </form>
+        )
+    }
+
     return(
-         currentUser && <div className='friend-view'>                          
-             <div className='member-list'>
-            <form className='d-flex flex-column align-items-center '>
-                <label>
-                    <p>Username</p>
-                    <input className='w-100' type="text" value={newFriend} onChange={(e) => setNewFriend(e.target.value)}/>
-                </label>
-                <button type="submit" className='btn btn-primary w-100' onClick={handleAddFriend}>+ Add Friend</button>
-                </form>
-                <ul>{renderFriendItems()}</ul>
+         currentUser && 
+         <div className='server-view'>
+            <div className='friend-view'>                
+                <div className='member-list h-100'>
+                <div className='friend_list_label'>Friend list</div> 
+                <form className='d-flex flex-column align-items-center '>
+                    <label>
+                        <p>Username</p>
+                        <input className='w-100' type="text" value={newFriend} onChange={(e) => setNewFriend(e.target.value)}/>
+                    </label>
+                    <button type="submit" className='btn btn-primary w-100' onClick={handleAddFriend}>+ Add Friend</button>
+                    </form>
+                    <ul>{renderFriendItems()}</ul>
+                </div>
             </div>
+            <div className='channel-view'>
+                    <ul className='message-list'>{renderMessageItems()}</ul>
+                    {renderChannelView()}
+                </div>
         </div>
     )
 }
