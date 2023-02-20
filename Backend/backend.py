@@ -134,6 +134,7 @@ def add_member(member, server):
 def handle_message_sent(server, channel):
     print(server)
     print(channel)
+    print(socketio.server.manager.rooms)
     socketio.emit("new_message", {"server" : server, "channel" : channel}, to = server)
 
 # Envoyer aux membres le serveur mis a jour après un nouveau message

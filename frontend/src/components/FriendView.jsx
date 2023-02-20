@@ -78,7 +78,6 @@ function FriendView({socket}){
         socket.off('new_message')
 
         socket.on('new_message', (data) => {
-
             // if ( activeChannel && activeServer == data.server && activeChannel.name == data.channel ){
 
                 // Notifier le server qu'un nouveau message a été reçu. 

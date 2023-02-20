@@ -127,6 +127,7 @@ function ServerView({activeServer, socket}){
             const serverData = await getServerData()
             console.log(serverData)
             setServer(serverData)
+            setActiveChannel(activeChannel)
         }
 
         if(connectedUsers != undefined){
