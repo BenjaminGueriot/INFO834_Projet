@@ -155,28 +155,53 @@ def handle_new_channel(server_name):
 
 
 # Ajouter un utilisateur
-@app.route("/api/user", methods = ['POST'])
+@app.route("/api/user", methods = ['POST',"GET"])
 def api_user():
-    data = request.get_json()
 
-    user = db.create_user(mongo, data['username'], data['password'])
+    if request.method == "POST" :
+        data = request.get_json()
 
-    if user:
-        response = app.response_class(
-                response=json.dumps({'body' : user.login}),
-                status=200,
+        user = db.create_user(mongo, data['username'], data['password'])
+
+        if user:
+            response = app.response_class(
+                    response=json.dumps({'body' : user.login}),
+                    status=200,
+                    mimetype='application/json'
+                )
+            return response
+
+        else:
+            error = {'body' : 'username already exists'}
+            response = app.response_class(
+                response=json.dumps(error),
+                status=400,
                 mimetype='application/json'
             )
-        return response
+            return response
+        
+    elif request.method == "GET":
+        user = request.args.get('user')
 
-    else:
-        error = {'body' : 'username already exists'}
-        response = app.response_class(
-            response=json.dumps(error),
-            status=400,
-            mimetype='application/json'
-        )
-        return response
+        if user:
+            getter = db.find_user_by_login(mongo, user)
+            if getter:
+                print(getter)
+                response = app.response_class(
+                        response=json.dumps({'body' : getter.friends}),
+                        status=200,
+                        mimetype='application/json'
+                    )
+                return response
+            else:
+                error = {'body' : 'Error getting servers'}
+                response = app.response_class(
+                    response=json.dumps(error),
+                    status=400,
+                    mimetype='application/json'
+                )
+                return response
+
 
 # Connecter un utilisateur
 @app.route("/api/user/login", methods = ['POST'])
@@ -202,6 +227,38 @@ def api_user_login():
             mimetype='application/json'
         )
         return response
+
+#ajouter des amis
+@app.route("/api/friend", methods = ["POST"])
+def crud_friend():
+
+    # Ajouter un serveur pour un chat privé
+    if request.method == "POST" :
+        data = request.get_json()
+
+        print("-----------------------------------------------------")
+        
+
+        chat = db.create_chat(mongo, data["user"] + "_" + data["friend"], data["user"], data["friend"])
+
+        print(chat)
+
+        if chat:
+            response = app.response_class(
+                    response=json.dumps({'body' : chat.name}),
+                    status=200,
+                    mimetype='application/json'
+                )
+            return response
+
+        else:
+            error = {'body' : 'Friend already exists'}
+            response = app.response_class(
+                response=json.dumps(error),
+                status=400,
+                mimetype='application/json'
+            )
+            return response
 
 # API Server
 @app.route("/api/server", methods = ["POST", "GET", "PUT"])
