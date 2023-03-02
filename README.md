@@ -113,6 +113,10 @@ Lors de la déconnexion, on supprimme la clé de l'utilisateur pour indiquer qu'
 r.delete(socketio.server.get_session(sid).get('username')) # Suppression de l'entrée correspondant à l'utilisateur
 ```
 
+# ReplicaSet
+
+
+
 # Fonctionnalités développées
 
 - Connexions utilisateur
