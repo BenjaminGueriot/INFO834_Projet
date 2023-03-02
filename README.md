@@ -123,7 +123,7 @@ Le noeud primaire reçoit toutes les opérations d'écriture et propage les chan
 
 Les ensembles de réplicas offrent plusieurs avantages, notamment une haute disponibilité, une reprise automatique en cas de panne et une évolutivité.
 
-Afin de mettre en place notre Replica Set, on effectue dans plusieurs consoles les commande suivantes:
+Afin de mettre en place notre Replica Set, on effectue dans plusieurs consoles les commandes suivantes:
 
 ```shell
 Console serv1
