@@ -115,7 +115,44 @@ r.delete(socketio.server.get_session(sid).get('username')) # Suppression de l'en
 
 # ReplicaSet
 
+Un Replica Set dans MongoDB est un groupe de serveurs MongoDB qui travaillent ensemble pour assurer une haute disponibilité et une reprise automatique en cas de panne. Il est composé de plusieurs instances de MongoDB, dont l'une est le nœud primaire et les autres sont des nœuds secondaires.
 
+
+Le noeud primaire reçoit toutes les opérations d'écriture et propage les changements aux nœuds secondaires. Les nœuds secondaires répliquent les données du nœud primaire et sont utilisés pour les opérations de lecture. Si le nœud primaire tombe en panne, l'un des nœuds secondaires est automatiquement élu comme nouveau nœud primaire, assurant ainsi que le système reste disponible.
+
+
+Les ensembles de réplicas offrent plusieurs avantages, notamment une haute disponibilité, une reprise automatique en cas de panne et une évolutivité.
+
+Afin de mettre en place notre Replica Set, on effectue dans plusieurs consoles les commande suivantes:
+
+```shell
+Console serv1
+mongod --replSet rs0 --port 27018 --dbpath C:\Users\benji\data/R0S1
+
+Console Admin:
+mongosh --port 27018
+rs.initiate()
+rs.config()
+
+Console serv2:
+mongod --replSet rs0 --port 27019 --dbpath C:\Users\benji\data/R0S2
+
+Console serv3:
+mongod --replSet rs0 --port 27020 --dbpath C:\Users\benji\data/R0S3
+
+Console Admin:
+rs.add("localhost:27019")
+rs.add("localhost:27020")
+
+
+Console Arbitre:
+mongod --port 30000 --dbpath C:\Users\benji\data/arb --replSet rs0
+
+
+Console Admin:
+db.adminCommand( { setDefaultRWConcern : 1, defaultReadConcern: {level : "majority"},defaultWriteConcern: {w : "majority"}})
+rs.addArb("localhost:30000")
+```
 
 # Fonctionnalités développées
 
