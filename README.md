@@ -29,7 +29,7 @@ plusieurs serveurs qui eux contiennent plusieurs channels centrées sur un sujet
 
 ## Technologies
 
-![architecture](./imgs_readme/architecture.png)
+![architecture](imgs_readme/architecture.png)
 
 Pour le frontend, nous utilisons la librairie JS React afin de construire notre UI. React communique avec notre Backend Pythonpar le biais d'appels d'API pour obtenir les informations de la base de donnée, mais également par des websockets qui permettent une mise a jour en temps réel de l'UI, pour gérer les nouveaux messages par exemple.
 
@@ -130,15 +130,15 @@ r.delete(socketio.server.get_session(sid).get('username')) # Suppression de l'en
 Le fichier `stats.py` permet d'obtenir des stats sur l'application à partir de Redis,  MongoDB et pandas.
 D'abord un diagramme des utilisateurs qui se connectent le plus en manipulant les données du stream de connexions Redis. 
 
-![Stats](./imgs_readme/stats_connexions.png)
+![Stats](imgs_readme/stats_connexions.png)
 
 Ensuite les utilisateurs qui envoient le plus de message à partir de MongoDB et d'une pipeline d'agrégats :
 
-![Stats](./imgs_readme/stats_msg.png)
+![Stats](imgs_readme/stats_msg.png)
 
 Finalement les serveurs avec le plus de messages, toujours avec MongoDB :
 
-![Stats](./imgs_readme/stats_servers.png)
+![Stats](imgs_readme/stats_servers.png)
 
 # Compétences acquises
 
