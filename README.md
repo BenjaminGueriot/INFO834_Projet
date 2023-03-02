@@ -154,6 +154,8 @@ db.adminCommand( { setDefaultRWConcern : 1, defaultReadConcern: {level : "majori
 rs.addArb("localhost:30000")
 ```
 
+Pour faciliter les tests, le projet utilisant le replica Set se trouve dans une branche différente du main. Cependent l'implémentation dans le code est relativement facile, il suffit de changer la ligne de connection a mongoDB et d'y précisé que l'on se connecte à un réplica Set.
+
 # Fonctionnalités développées
 
 - Connexions utilisateur
