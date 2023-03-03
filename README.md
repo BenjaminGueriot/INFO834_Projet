@@ -1,4 +1,6 @@
 # Projet Clone Discord
+GUERIOT Benjamin, PRUVOST Jordan, PACCOUD William, TAKAHASHI Vincent, NICOLAS Thomas
+
 Projet réalisé en groupe. Le but était de réaliser une application de chat qui imitait le fonctionnement de Discord. C'est à dire qu'un utilisateur peut rejoindre
 plusieurs serveurs qui eux contiennent plusieurs channels centrées sur un sujet qui font office de chat. Il est également possible d'ajouter des utilisateurs come amis pour communiquer avec eux de manière privée.
 
